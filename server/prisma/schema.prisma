@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Data
+
+model year {
+  id         Int      @id @default(autoincrement())
+  year       Int      @unique
+  months     month[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model month {
+  id         Int      @id @default(autoincrement())
+  month      Int
+  sales      sale[]
+  year       year     @relation(fields: [yearId], references: [id])
+  yearId     Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// Vendas
+
+model sale {
+  id         Int      @id @default(autoincrement())
+  date       DateTime
+  value      Float
+  month      month    @relation(fields: [monthId], references: [id])
+  monthId    Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
