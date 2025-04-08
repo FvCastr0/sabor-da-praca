@@ -5,7 +5,7 @@ import {
 import { Type } from "class-transformer";
 import { IsInt, IsNumber, Max, Min } from "class-validator";
 
-export class GetSalesOfMonthDto {
+export class GetDayOfMonthDto {
   @Type(() => Number)
   @IsNumber({}, { message: ValidationMonthMessages.IS_NUMBER })
   @IsInt({ message: ValidationMonthMessages.IS_INT })

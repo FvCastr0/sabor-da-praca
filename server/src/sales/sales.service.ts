@@ -8,9 +8,9 @@ export class SalesService {
 
   async create(dto: CreateSaleDto) {
     try {
-      const month = await this.prisma.month.findFirst({
+      const dayId = await this.prisma.day.findFirst({
         where: {
-          month: new Date().getMonth() + 1
+          date: new Date().getDate()
         },
         select: {
           id: true
@@ -20,8 +20,8 @@ export class SalesService {
       await this.prisma.sale.create({
         data: {
           value: dto.value,
-          date: new Date(),
-          month: { connect: { id: month?.id } }
+          date: dto.date,
+          day: { connect: { id: dayId?.id } }
         }
       });
     } catch (e) {

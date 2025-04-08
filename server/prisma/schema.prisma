@@ -20,11 +20,19 @@ model year {
 model month {
   id         Int      @id @default(autoincrement())
   month      Int
-  sales      sale[]
+  days       day[]
   year       year     @relation(fields: [yearId], references: [id])
   yearId     Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model day {
+  id      Int    @id @default(autoincrement())
+  date    Int
+  sales   sale[]
+  month   month  @relation(fields: [monthId], references: [id])
+  monthId Int
 }
 
 // Vendas
@@ -33,8 +41,8 @@ model sale {
   id         Int      @id @default(autoincrement())
   date       DateTime
   value      Float
-  month      month    @relation(fields: [monthId], references: [id])
-  monthId    Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  day        day      @relation(fields: [dayId], references: [id])
+  dayId      Int
 }

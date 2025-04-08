@@ -13,5 +13,13 @@ export const ValidationMonthMessages = {
 };
 
 export const ValidationSaleMessages = {
-  IS_NUMBER: "Você deve passar um número como valor"
+  IS_NUMBER: "Você deve passar um número como valor",
+  IS_DATE: "Precisa de ser uma data."
+};
+
+export const ValidationDayMessages = {
+  IS_NUMBER: "O dia deve ser um número.",
+  MONTH_MIN: "O dia deve ser no mínimo 1.",
+  MONTH_MAX: "O dia deve ser no máximo 31.",
+  IS_INT: "O dia deve ser um número inteiro."
 };

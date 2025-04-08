@@ -1,7 +1,7 @@
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { GetSalesOfMonthDto } from "./dto/GetSalesOfMonthDto";
+import { GetDayOfMonthDto } from "./dto/GetDayOfMonthDto";
 
 @Injectable()
 export class MonthService {
@@ -26,7 +26,7 @@ export class MonthService {
         if (monthData === null) {
           await this.prisma.month.create({
             data: {
-              yearId: year.id,
+              year: { connect: { id: year.id } },
               month: new Date().getMonth() + 1
             }
           });
@@ -37,7 +37,7 @@ export class MonthService {
     }
   }
 
-  async getSalesOfMonth(dto: GetSalesOfMonthDto) {
+  async getDayOfMonth(dto: GetDayOfMonthDto) {
     try {
       const year = await this.prisma.year.findFirst({
         where: {
@@ -53,8 +53,9 @@ export class MonthService {
           month: dto.month
         },
         select: {
-          sales: true,
-          yearId: true
+          days: true,
+          yearId: true,
+          id: true
         }
       });
 
@@ -65,7 +66,7 @@ export class MonthService {
       } else {
         return {
           success: true,
-          data: month?.sales
+          data: month?.days
         };
       }
     } catch (e) {
