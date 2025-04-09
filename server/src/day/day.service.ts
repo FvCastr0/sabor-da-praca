@@ -1,12 +1,12 @@
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Cron } from "@nestjs/schedule";
 
 @Injectable()
 export class DayService {
   constructor(private prisma: PrismaService) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron("0 1 0 * * *")
   async createDay() {
     try {
       const dayData = await this.prisma.day.findFirst({

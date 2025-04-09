@@ -17,11 +17,26 @@ export class SalesService {
         }
       });
 
+      const month = await this.prisma.month.findFirst({
+        where: {
+          month: new Date().getMonth() + 1
+        },
+        select: { id: true }
+      });
+
       await this.prisma.sale.create({
         data: {
           value: dto.value,
           date: dto.date,
-          day: { connect: { id: dayId?.id } }
+          day: {
+            connectOrCreate: {
+              where: { id: dayId?.id },
+              create: {
+                month: { connect: { id: month?.id } },
+                date: new Date().getDate()
+              }
+            }
+          }
         }
       });
     } catch (e) {
