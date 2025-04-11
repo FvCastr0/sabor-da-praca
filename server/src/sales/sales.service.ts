@@ -13,9 +13,9 @@ export class SalesService {
     const sales = await this.prisma.salesDate.findUnique({
       where: {
         day_month_year: {
-          day: dto.day,
-          month: dto.month,
-          year: dto.year
+          day: Number(dto.day),
+          month: Number(dto.month),
+          year: Number(dto.year)
         }
       },
       select: {

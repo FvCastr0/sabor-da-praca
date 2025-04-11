@@ -7,7 +7,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true, // ✅ adicione isso
-    "target": "ES2023",
+    "target": "es2022",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
