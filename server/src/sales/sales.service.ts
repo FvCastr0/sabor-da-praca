@@ -1,7 +1,7 @@
-import { ResponseData } from "@/interfaces/ResponseData";
-import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
+import { ResponseData } from "../interfaces/ResponseData";
+import { PrismaService } from "../prisma/prisma.service";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 

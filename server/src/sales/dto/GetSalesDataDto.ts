@@ -1,6 +1,6 @@
-import { ValidationDateMessages } from "@/data/validation-messages";
 import { Transform } from "class-transformer";
 import { IsInt, Max, Min } from "class-validator";
+import { ValidationDateMessages } from "../../data/validation-messages";
 
 export class GetSalesDataDto {
   @Transform(({ value }) => parseInt(value))
