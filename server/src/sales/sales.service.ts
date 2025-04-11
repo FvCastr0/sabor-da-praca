@@ -88,6 +88,8 @@ export class SalesService {
       const currentMonth = today.getMonth() + 1;
       const currentYear = today.getFullYear();
 
+      console.log(dto);
+
       await this.prisma.sale.create({
         data: {
           value: dto.value,
@@ -112,6 +114,8 @@ export class SalesService {
         }
       });
     } catch (e) {
+      console.log(e);
+
       return e;
     }
   }
