@@ -1,8 +1,6 @@
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import "tsconfig-paths/register";
 import { AppModule } from "./app.module";
-import "./main.helper";
 
 export const createNestApp = async () => {
   const app = await NestFactory.create(AppModule);
