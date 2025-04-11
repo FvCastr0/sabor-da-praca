@@ -2,7 +2,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 
-export const createNestApp = async () => {
+export async function createNestApp() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -14,4 +14,4 @@ export const createNestApp = async () => {
   app.enableCors();
   await app.init();
   return app.getHttpAdapter().getInstance();
-};
+}
