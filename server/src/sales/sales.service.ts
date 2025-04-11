@@ -1,5 +1,6 @@
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 
 @Injectable()
@@ -8,38 +9,36 @@ export class SalesService {
 
   async create(dto: CreateSaleDto) {
     try {
-      const dayId = await this.prisma.day.findFirst({
-        where: {
-          date: new Date().getDate()
-        },
-        select: {
-          id: true
-        }
-      });
-
-      const month = await this.prisma.month.findFirst({
-        where: {
-          month: new Date().getMonth() + 1
-        },
-        select: { id: true }
-      });
+      const today = new Date();
+      const currentDay = today.getDate();
+      const currentMonth = today.getMonth() + 1;
+      const currentYear = today.getFullYear();
 
       await this.prisma.sale.create({
         data: {
           value: dto.value,
           date: dto.date,
-          day: {
+          salesDate: {
             connectOrCreate: {
-              where: { id: dayId?.id },
+              where: {
+                day_month_year: {
+                  day: currentDay,
+                  month: currentMonth,
+                  year: currentYear
+                }
+              },
               create: {
-                month: { connect: { id: month?.id } },
-                date: new Date().getDate()
+                id: randomUUID(),
+                day: currentDay,
+                month: currentMonth,
+                year: currentYear
               }
             }
           }
         }
       });
     } catch (e) {
+      console.log(e);
       return e;
     }
   }

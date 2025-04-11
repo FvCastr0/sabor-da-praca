@@ -7,42 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Data
+model Sale {
+  id    String   @id @default(uuid()) @map("_id")
+  date  DateTime
+  value Float
 
-model year {
-  id         Int      @id @default(autoincrement())
-  year       Int      @unique
-  months     month[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  salesDate   salesDate @relation(fields: [salesDateId], references: [id])
+  salesDateId String
 }
 
-model month {
-  id         Int      @id @default(autoincrement())
-  month      Int
-  days       day[]
-  year       year     @relation(fields: [yearId], references: [id])
-  yearId     Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-}
+model salesDate {
+  id    String @id @map("_id")
+  day   Int
+  month Int
+  year  Int
+  sales Sale[]
 
-model day {
-  id      Int    @id @default(autoincrement())
-  date    Int
-  sales   sale[]
-  month   month  @relation(fields: [monthId], references: [id])
-  monthId Int
-}
-
-// Vendas
-
-model sale {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
-  value      Float
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  day        day      @relation(fields: [dayId], references: [id])
-  dayId      Int
+  @@unique([day, month, year], name: "day_month_year")
 }
