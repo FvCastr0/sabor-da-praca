@@ -87,10 +87,12 @@ export class SalesService {
       const currentMonth = today.getMonth() + 1;
       const currentYear = today.getFullYear();
 
+      const isoDate = new Date(dto.date).toISOString();
+
       await this.prisma.sale.create({
         data: {
           value: dto.value,
-          date: dto.date,
+          date: isoDate,
           salesDate: {
             connectOrCreate: {
               where: {
