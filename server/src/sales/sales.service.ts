@@ -2,6 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import { ResponseData } from "../interfaces/ResponseData";
 import { PrismaService } from "../prisma/prisma.service";
+import { getAverageTicket } from "../utils/getAvarageTicket";
+import { getPeakHour } from "../utils/getPeakHours";
+import { getTotalSalesValue } from "../utils/getTotalValueSales";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 
@@ -30,53 +33,49 @@ export class SalesService {
 
     if (sales === null) return { message: "Data não encontrada.", status: 404 };
 
-    const totalSalesValue = () => {
-      let totalValue = 0;
-      sales?.sales.map(sale => {
-        totalValue += sale.value;
+    const morningSales = () => {
+      const morning: { date: Date; value: number }[] = [];
+      sales.sales.map(sale => {
+        if (sale.date.getHours() < 13) {
+          morning.push(sale);
+        }
       });
-      return totalValue;
+      return morning;
     };
 
-    const mediumTicket = Number(
-      (totalSalesValue() / sales.sales.length).toFixed(2)
-    );
-
-    function calculatePeakHour() {
-      const arrHours = [] as number[];
-      const count = {};
-      let frequentlyNumber = 0;
-      let highestCount = 0;
-
-      sales?.sales.map(sale => {
-        arrHours.push(sale.date.getHours());
+    const afternoonSales = () => {
+      const afternoonSales: { date: Date; value: number }[] = [];
+      sales.sales.map(sale => {
+        if (sale.date.getHours() >= 13) {
+          afternoonSales.push(sale);
+        }
       });
-
-      for (const hour of arrHours) {
-        if (count[hour]) {
-          count[hour]++;
-        } else {
-          count[hour] = 1;
-        }
-
-        if (count[hour] > highestCount) {
-          highestCount = count[hour];
-          frequentlyNumber = hour;
-        }
-      }
-
-      return frequentlyNumber;
-    }
+      return afternoonSales;
+    };
 
     return {
       message: "Vendas carregadas com sucesso",
       status: 200,
       data: {
-        sales,
-        salesQuantity: sales.sales.length,
-        totalValue: Number(totalSalesValue().toFixed(2)),
-        mediumTicket,
-        peekHour: calculatePeakHour()
+        general: {
+          sales,
+          salesQuantity: sales.sales.length,
+          totalValue: Number(getTotalSalesValue(sales.sales).toFixed(2)),
+          mediumTicket: getAverageTicket(sales.sales),
+          peekHour: getPeakHour(sales.sales)
+        },
+        morningSales: {
+          salesQuantity: morningSales().length,
+          totalValue: Number(getTotalSalesValue(morningSales()).toFixed(2)),
+          mediumTicket: getAverageTicket(morningSales()),
+          peekHour: getPeakHour(morningSales())
+        },
+        afternoonSales: {
+          salesQuantity: afternoonSales().length,
+          totalValue: Number(getTotalSalesValue(afternoonSales()).toFixed(2)),
+          mediumTicket: getAverageTicket(afternoonSales()),
+          peekHour: getPeakHour(afternoonSales())
+        }
       }
     };
   }
@@ -87,8 +86,6 @@ export class SalesService {
       const currentDay = today.getDate();
       const currentMonth = today.getMonth() + 1;
       const currentYear = today.getFullYear();
-
-      console.log(dto);
 
       await this.prisma.sale.create({
         data: {
