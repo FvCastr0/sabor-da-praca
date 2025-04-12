@@ -26,3 +26,10 @@ model salesDate {
 
   @@unique([day, month, year], name: "day_month_year")
 }
+
+model user {
+  id       String  @id @map("_id")
+  name     String  @unique()
+  password String
+  isAdmin  Boolean
+}

@@ -17,3 +17,9 @@ export const ValidationSaleMessages = {
   IS_NUMBER: "Você deve passar um número como valor",
   IS_DATE: "Precisa de ser uma data."
 };
+
+export const ValidationUserMessages = {
+  IS_STRING: "Você deve digitar um texto",
+  MIN_LENGTH_NAME: "O nome deve ter no mínimo 3 carácteres.",
+  MIN_LENGTH_PASSWORD: "A senha deve ter no mínimo 4 carácteres."
+};
