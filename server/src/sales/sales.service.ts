@@ -1,4 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  OnModuleDestroy
+} from "@nestjs/common";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { randomUUID } from "node:crypto";
 import { ResponseData } from "../interfaces/ResponseData";
 import { PrismaService } from "../prisma/prisma.service";
@@ -9,8 +14,16 @@ import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 
 @Injectable()
-export class SalesService {
+export class SalesService implements OnModuleDestroy {
+  private salesBuffer: CreateSaleDto[] = [];
+  private readonly batchSize = 50;
+  private processingBatch = false;
+
   constructor(private prisma: PrismaService) {}
+
+  async onModuleDestroy() {
+    await this.processSalesBatch();
+  }
 
   async getSalesData(dto: GetSalesDataDto): Promise<ResponseData> {
     const sales = await this.prisma.salesDate.findUnique({
@@ -35,7 +48,7 @@ export class SalesService {
 
     const morningSales = () => {
       const morning: { date: Date; value: number }[] = [];
-      sales.sales.map(sale => {
+      sales.sales.forEach(sale => {
         if (sale.date.getHours() < 13) {
           morning.push(sale);
         }
@@ -45,7 +58,7 @@ export class SalesService {
 
     const afternoonSales = () => {
       const afternoonSales: { date: Date; value: number }[] = [];
-      sales.sales.map(sale => {
+      sales.sales.forEach(sale => {
         if (sale.date.getHours() >= 13) {
           afternoonSales.push(sale);
         }
@@ -81,41 +94,65 @@ export class SalesService {
   }
 
   async create(dto: CreateSaleDto) {
+    this.salesBuffer.push(dto);
+    if (this.salesBuffer.length >= this.batchSize && !this.processingBatch) {
+      await this.processSalesBatch();
+    }
+  }
+
+  private async processSalesBatch() {
+    if (this.salesBuffer.length === 0 || this.processingBatch) {
+      return;
+    }
+
+    this.processingBatch = true;
+    const batchToProcess = [...this.salesBuffer];
+    this.salesBuffer = [];
+
     try {
       const today = new Date();
       const currentDay = today.getDate();
       const currentMonth = today.getMonth() + 1;
       const currentYear = today.getFullYear();
 
-      const isoDate = new Date(dto.date).toISOString();
-
-      await this.prisma.sale.create({
-        data: {
-          value: dto.value,
-          date: isoDate,
-          salesDate: {
-            connectOrCreate: {
-              where: {
-                day_month_year: {
-                  day: currentDay,
-                  month: currentMonth,
-                  year: currentYear
-                }
-              },
-              create: {
-                id: randomUUID(),
-                day: currentDay,
-                month: currentMonth,
-                year: currentYear
-              }
-            }
+      const salesDateRecord = await this.prisma.salesDate.upsert({
+        where: {
+          day_month_year: {
+            day: currentDay,
+            month: currentMonth,
+            year: currentYear
           }
+        },
+        update: {},
+        create: {
+          id: randomUUID(),
+          day: currentDay,
+          month: currentMonth,
+          year: currentYear
         }
       });
-    } catch (e) {
-      console.log(e);
 
-      return e;
+      const salesDataToCreate = batchToProcess.map(dto => ({
+        value: dto.value,
+        date: new Date(dto.date).toISOString(),
+        salesDateId: salesDateRecord.id
+      }));
+
+      await this.prisma.sale.createMany({
+        data: salesDataToCreate
+      });
+    } catch (e) {
+      throw new InternalServerErrorException("Error processing sales batch", e);
+    } finally {
+      this.processingBatch = false;
+      if (this.salesBuffer.length >= this.batchSize) {
+        await this.processSalesBatch();
+      }
     }
+  }
+
+  @Cron(CronExpression.EVERY_4_HOURS)
+  private async pushSalesEverySixHours() {
+    if (this.salesBuffer.length > 0) await this.processSalesBatch();
   }
 }
