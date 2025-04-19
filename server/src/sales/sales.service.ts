@@ -16,7 +16,7 @@ import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 @Injectable()
 export class SalesService implements OnModuleDestroy {
   private salesBuffer: CreateSaleDto[] = [];
-  private readonly batchSize = 50;
+  private readonly batchSize = 10;
   private processingBatch = false;
 
   constructor(private prisma: PrismaService) {}
