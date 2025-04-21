@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const response = await fetch(
-            `${process.env.BACKEND_URL}/api/auth/login`,
+            `${process.env.BACKEND_URL}/auth/login`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -32,6 +32,8 @@ export const authOptions: NextAuthOptions = {
               })
             }
           );
+
+          console.log(response);
 
           if (!response.ok) return null;
           const loginData = await response.json();
