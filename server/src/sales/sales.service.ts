@@ -41,7 +41,8 @@ export class SalesService implements OnModuleDestroy {
         sales: {
           select: {
             value: true,
-            date: true
+            date: true,
+            id: true
           }
         }
       }
