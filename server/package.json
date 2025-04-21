@@ -29,7 +29,6 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/schedule": "^5.0.1",
-    "@prisma/adapter-pg": "^6.6.0",
     "@prisma/client": "^6.6.0",
     "@vendia/serverless-express": "^4.12.6",
     "bcrypt": "^5.1.1",
@@ -38,10 +37,10 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "mysql2": "^3.14.0",
-    "next-auth": "^4.24.11",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "webpack": "^5.99.6"
   },
   "prisma": "^6.6.0",
   "devDependencies": {
