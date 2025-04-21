@@ -7,7 +7,7 @@ import { updateSaleValue } from "@/lib/updateSaleValue";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Sale {
   id: string;
@@ -15,7 +15,7 @@ interface Sale {
   date: string;
 }
 
-export default function Table() {
+export default function TableClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [sales, setSales] = useState<Sale[]>([]);
@@ -47,7 +47,6 @@ export default function Table() {
     const convertedDate = new Date(saleDate);
     const hours = convertedDate.getHours();
     const minutes = convertedDate.getMinutes();
-
     return `${hours}:${minutes}`;
   }
 
@@ -73,44 +72,42 @@ export default function Table() {
   }
 
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
-      <SalesTableStyles>
-        <div className="header">
-          <h1 className={poppins.className}>
-            Vendas do dia {day}/{month.toString().padStart(2, "0")}/{year}
-          </h1>
-          <Link href={"/"} className={raleway.className}>
-            Voltar ao menu principal
-          </Link>
-        </div>
-        <table>
-          <thead className={raleway.className}>
-            <tr>
-              <th>Valor</th>
-              <th>Horário</th>
-              <td>Editar</td>
+    <SalesTableStyles>
+      <div className="header">
+        <h1 className={poppins.className}>
+          Vendas do dia {day}/{month.toString().padStart(2, "0")}/{year}
+        </h1>
+        <Link href={"/"} className={raleway.className}>
+          Voltar ao menu principal
+        </Link>
+      </div>
+      <table>
+        <thead className={raleway.className}>
+          <tr>
+            <th>Valor</th>
+            <th>Horário</th>
+            <td>Editar</td>
+          </tr>
+        </thead>
+        <tbody className={poppins.className}>
+          {sales.map(sale => (
+            <tr key={sale.id}>
+              <td>{sale.value}</td>
+              <td>{convertSaleDateToTime(sale.date)}</td>
+              <td>
+                <Image
+                  src={"/edit.svg"}
+                  alt="Edit icon"
+                  width={24}
+                  height={24}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleEditSale(sale.id)}
+                />
+              </td>
             </tr>
-          </thead>
-          <tbody className={poppins.className}>
-            {sales.map(sale => (
-              <tr key={sale.id}>
-                <td>{sale.value}</td>
-                <td>{convertSaleDateToTime(sale.date)}</td>
-                <td>
-                  <Image
-                    src={"/edit.svg"}
-                    alt="Edit icon"
-                    width={24}
-                    height={24}
-                    style={{ cursor: "pointer" }}
-                    onClick={handleEditSale.bind(null, sale.id)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </SalesTableStyles>
-    </Suspense>
+          ))}
+        </tbody>
+      </table>
+    </SalesTableStyles>
   );
 }
