@@ -1,0 +1,37 @@
+import styled from "styled-components";
+import { colors } from "./theme";
+
+export const CardSales = styled.article`
+  background-color: #f6f6f6;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 40dvw;
+  line-height: 1.3;
+
+  @media (max-width: 880px) {
+    max-width: 100%;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    color: ${colors.secondary};
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    color: ${colors.terciary};
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+  }
+`;

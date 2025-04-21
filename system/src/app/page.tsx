@@ -1,94 +1,184 @@
 "use client";
 
-import { FormButton, FormCard, Input } from "@/components/ui/FormComponents";
+import { Header } from "@/components/Header";
+import { CardSales } from "@/components/ui/CardSales";
+import { InputTurn } from "@/components/ui/InputTurn";
+import { Sales } from "@/components/ui/Sales";
 import { poppins, raleway } from "@/components/ui/theme";
-import { signIn } from "next-auth/react";
-import Image from "next/image";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-export default function LoginPage() {
-  const [credentials, setCredentials] = useState({
-    name: "",
-    password: ""
+export default function Home() {
+  const { status } = useSession();
+  const router = useRouter();
+  const [daySales, setDaySales] = useState({
+    peekHour: 0,
+    salesQuantity: 0,
+    mediumTicket: 0,
+    totalValue: 0
+  });
+  const [turn, setTurn] = useState("morning");
+
+  const [morningTurn, setMorningTurn] = useState({
+    peekHour: 0,
+    salesQuantity: 0,
+    mediumTicket: 0,
+    totalValue: 0
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setCredentials(prev => ({ ...prev, [id]: value }));
-  };
+  const [afternoonTurn, setAfternoonTurn] = useState({
+    peekHour: 0,
+    salesQuantity: 0,
+    mediumTicket: 0,
+    totalValue: 0
+  });
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const res = await signIn("credentials", {
-      redirect: false,
-      ...credentials
-    });
-
-    if (res?.ok) {
-      toast.success("Login realizado com sucesso!");
-      setInterval(() => {
-        window.location.href = "/";
-      }, 1000);
-    } else {
-      toast.error("Usuário ou senha inválido.");
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
     }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return null;
+  }
+
+  async function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selectedDate = event.target.value;
+    const date = new Date(selectedDate);
+    const day = date.getDate() + 1;
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const response = await fetch(
+      `https://sabor-da-praca.vercel.app/sale/data?day=${day}&month=${month}&year=${year}`
+    );
+
+    if (!response.ok) {
+      toast.error("Erro ao buscar vendas");
+    } else toast.success("Vendas carregadas com sucesso");
+
+    const json = await response.json();
+
+    setDaySales({ ...json.data.general });
+    setMorningTurn({ ...json.data.morningSales });
+    setAfternoonTurn({ ...json.data.afternoonSales });
+  }
+
+  const handleTurnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTurn(event.target.value);
   };
 
   return (
-    <FormCard onSubmit={handleFormSubmit}>
-      <h1 className={raleway.className}>Login</h1>
+    <div>
+      <Header />
+      <Sales>
+        <div className={"sales-header"}>
+          <h1 className={raleway.className}>Dia</h1>
+          <input
+            type="date"
+            className={poppins.className}
+            onChange={handleDateChange}
+          />
+        </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          flexDirection: "row"
-        }}
-      >
-        <Image
-          src="/images/logo.png"
-          alt="logo"
-          width={341}
-          height={167}
-          id="logo"
-        />
+        <section>
+          <CardSales className={raleway.className}>
+            <div className="card-header">
+              <h2>Vendas do dia</h2>
+              <Link href="/table">Ver tabela</Link>
+            </div>
 
-        <article
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginLeft: "1.5rem"
-          }}
-        >
-          <div>
-            <Input className={poppins.className}>
-              <input
-                type="text"
-                id="name"
-                required
-                value={credentials.name}
-                onChange={handleChange}
-              />
-              <label htmlFor="name">Usuário</label>
-            </Input>
+            <p>
+              Vendas: R${" "}
+              <span className={poppins.className}>
+                {daySales.salesQuantity}
+              </span>
+            </p>
+            <p>
+              Ticket médio: R${" "}
+              <span className={poppins.className}>{daySales.mediumTicket}</span>
+            </p>
+            <p>
+              Horário de pico:{" "}
+              <span className={poppins.className}>{daySales.peekHour}</span>
+            </p>
+            <p>
+              Total:{" "}
+              <span className={poppins.className}>{daySales.totalValue}</span>
+            </p>
+          </CardSales>
 
-            <Input className={poppins.className}>
-              <input
-                type="password"
-                id="password"
-                required
-                value={credentials.password}
-                onChange={handleChange}
-              />
-              <label htmlFor="password">Senha</label>
-            </Input>
+          <CardSales className={raleway.className}>
+            <div className="card-header">
+              <h2>Vendas dos turnos</h2>
 
-            <FormButton>Logar</FormButton>
-          </div>
-        </article>
-      </div>
-    </FormCard>
+              <InputTurn>
+                <div>
+                  <input
+                    type="radio"
+                    id="turn1"
+                    name="turns"
+                    value="morning"
+                    checked={turn === "morning"}
+                    onChange={handleTurnChange}
+                  />
+                  <label htmlFor="turn1">Manhã</label>
+                </div>
+
+                <div>
+                  <input
+                    type="radio"
+                    id="turn2"
+                    name="turns"
+                    value="afternoon"
+                    checked={turn === "afternoon"}
+                    onChange={handleTurnChange}
+                  />
+                  <label htmlFor="turn2">Tarde</label>
+                </div>
+              </InputTurn>
+            </div>
+            <p>
+              Vendas: R${" "}
+              <span className={poppins.className}>
+                {turn === "morning"
+                  ? morningTurn.salesQuantity
+                  : afternoonTurn.salesQuantity}
+              </span>
+            </p>
+            <p>
+              Ticket médio: R${" "}
+              <span className={poppins.className}>
+                {turn === "morning"
+                  ? morningTurn.mediumTicket
+                  : afternoonTurn.mediumTicket}
+              </span>
+            </p>
+
+            <p>
+              Horário de pico:{" "}
+              <span className={poppins.className}>
+                {turn === "morning"
+                  ? morningTurn.peekHour
+                  : afternoonTurn.peekHour}
+              </span>
+            </p>
+
+            <p>
+              Total:{" "}
+              <span className={poppins.className}>
+                {turn === "morning"
+                  ? morningTurn.totalValue
+                  : afternoonTurn.totalValue}
+              </span>
+            </p>
+          </CardSales>
+        </section>
+      </Sales>
+    </div>
   );
 }

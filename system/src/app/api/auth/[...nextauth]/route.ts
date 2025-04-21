@@ -21,14 +21,17 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.name || !credentials?.password) return null;
 
         try {
-          const response = await fetch("http://localhost:3001/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: credentials.name,
-              password: credentials.password
-            })
-          });
+          const response = await fetch(
+            `${process.env.BACKEND_URL}/api/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: credentials.name,
+                password: credentials.password
+              })
+            }
+          );
 
           if (!response.ok) {
             console.error("Erro na resposta do servidor:", response.statusText);
@@ -41,12 +44,15 @@ export const authOptions: NextAuthOptions = {
 
           const token = loginData.data.token;
 
-          const userRes = await fetch("http://localhost:3001/auth/profile", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`
+          const userRes = await fetch(
+            `${process.env.BACKEND_URL}/auth/profile`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
 
           if (!userRes.ok) return null;
           const userData = await userRes.json();
@@ -57,7 +63,7 @@ export const authOptions: NextAuthOptions = {
             token
           };
         } catch (error) {
-          console.error("Erro ao autenticar:", error);
+          console.error("Authorization error:", error);
           return null;
         }
       }
@@ -84,7 +90,7 @@ export const authOptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: "/"
+    signIn: "/login"
   },
 
   session: {

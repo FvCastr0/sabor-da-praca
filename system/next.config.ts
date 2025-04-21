@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  compiler: {
+    styledComponents: true
+  },
+  env: {
+    BACKEND_URL: "https://sabor-da-praca.onrender.com"
+  }
 };
 
 export default nextConfig;

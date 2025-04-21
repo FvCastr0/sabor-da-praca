@@ -15,7 +15,7 @@ export const PTSerif = PT_Serif({
 export const poppins = Poppins({
   subsets: ["latin"],
   display: "swap",
-  weight: "400"
+  weight: "300"
 });
 
 export const colors = {
