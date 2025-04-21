@@ -27,6 +27,7 @@ export function Header() {
           height: "auto"
         }}
       />
+
       {session && (
         <h1
           className={poppins.className}

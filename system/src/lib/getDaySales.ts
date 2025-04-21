@@ -1,3 +1,5 @@
+import { getSession } from "next-auth/react";
+
 interface Response {
   message: string;
   data?: {
@@ -40,8 +42,16 @@ export const getDaySales = async (
   month: number,
   year: number
 ): Promise<Response> => {
+  const session = await getSession();
+  const token = session?.accessToken;
+
   const response = await fetch(
-    `${process.env.BACKEND_URL}/sale/data?day=${day}&month=${month}&year=${year}`
+    `${process.env.BACKEND_URL}/sale/data?day=${day}&month=${month}&year=${year}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
   );
 
   if (!response.ok) {
