@@ -3,12 +3,14 @@ import {
   Controller,
   Get,
   NotFoundException,
+  Patch,
   Post,
   Query
 } from "@nestjs/common";
 
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
+import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
 import { SalesService } from "./sales.service";
 
 @Controller("sale")
@@ -25,6 +27,11 @@ export class SalesController {
       message: "Informações carregadas",
       data: salesData.data
     };
+  }
+
+  @Patch("/update")
+  update(@Body() dto: UpdateSaleValueDto) {
+    return this.salesService.updateSalesValue(dto);
   }
 
   @Post("/newSale")

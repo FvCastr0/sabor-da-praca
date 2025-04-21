@@ -13,6 +13,7 @@ import { getPeakHour } from "../utils/getPeakHours";
 import { getTotalSalesValue } from "../utils/getTotalValueSales";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
+import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
 
 const TIME_ZONE = "America/Sao_Paulo";
 
@@ -101,6 +102,35 @@ export class SalesService implements OnModuleDestroy {
           peekHour: getPeakHour(afternoonSales())
         }
       }
+    };
+  }
+
+  async updateSalesValue(dto: UpdateSaleValueDto): Promise<ResponseData> {
+    const sale = await this.prisma.sale.findUnique({
+      where: {
+        id: dto.id
+      }
+    });
+
+    if (!sale) {
+      return {
+        message: "Venda não encontrada",
+        status: 404
+      };
+    }
+
+    await this.prisma.sale.update({
+      where: {
+        id: dto.id
+      },
+      data: {
+        value: dto.value
+      }
+    });
+
+    return {
+      message: "Venda atualizada com sucesso",
+      status: 200
     };
   }
 
