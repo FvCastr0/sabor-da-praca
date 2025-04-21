@@ -1,0 +1,48 @@
+interface Response {
+  message: string;
+  data?: {
+    data: {
+      general: {
+        salesQuantity: number;
+        mediumTicket: number;
+        peekHour: string;
+        totalValue: number;
+      };
+      morningSales: {
+        salesQuantity: number;
+        mediumTicket: number;
+        peekHour: string;
+        totalValue: number;
+      };
+      afternoonSales: {
+        salesQuantity: number;
+        mediumTicket: number;
+        peekHour: string;
+        totalValue: number;
+      };
+    };
+  };
+  ok: boolean;
+}
+
+export const getDaySales = async (
+  day: number,
+  month: number,
+  year: number
+): Promise<Response> => {
+  const response = await fetch(
+    `${process.env.BACKEND_URL}/sale/data?day=${day}&month=${month}&year=${year}`
+  );
+
+  if (!response.ok) {
+    return {
+      message: "Erro ao buscar vendas",
+      ok: false
+    };
+  } else
+    return {
+      message: "Vendas carregadas com sucesso",
+      data: await response.json(),
+      ok: true
+    };
+};

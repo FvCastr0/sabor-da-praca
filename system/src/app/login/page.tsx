@@ -35,13 +35,13 @@ export default function Login() {
       ...credentials
     });
 
-    if (res?.ok) {
+    if (res?.error) {
+      toast.error("Usuário ou senha inválido.");
+    } else {
       toast.success("Login realizado com sucesso!");
-      setInterval(() => {
+      setTimeout(() => {
         router.push("/");
       }, 1000);
-    } else {
-      toast.error("Usuário ou senha inválido.");
     }
   };
 

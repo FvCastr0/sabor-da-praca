@@ -5,6 +5,7 @@ import { CardSales } from "@/components/ui/CardSales";
 import { InputTurn } from "@/components/ui/InputTurn";
 import { Sales } from "@/components/ui/Sales";
 import { poppins, raleway } from "@/components/ui/theme";
+import { getDaySales } from "@/lib/getDaySales";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -53,19 +54,32 @@ export default function Home() {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 
-    const response = await fetch(
-      `https://sabor-da-praca.vercel.app/sale/data?day=${day}&month=${month}&year=${year}`
-    );
+    const response = await getDaySales(day, month, year);
 
     if (!response.ok) {
       toast.error("Erro ao buscar vendas");
     } else toast.success("Vendas carregadas com sucesso");
 
-    const json = await response.json();
+    const salesData = response.data?.data;
 
-    setDaySales({ ...json.data.general });
-    setMorningTurn({ ...json.data.morningSales });
-    setAfternoonTurn({ ...json.data.afternoonSales });
+    if (salesData?.general) {
+      setDaySales({
+        ...salesData.general,
+        peekHour: Number(salesData.general.peekHour)
+      });
+    }
+    if (salesData?.morningSales) {
+      setMorningTurn({
+        ...salesData.morningSales,
+        peekHour: Number(salesData.morningSales.peekHour)
+      });
+    }
+    if (salesData?.afternoonSales) {
+      setAfternoonTurn({
+        ...salesData.afternoonSales,
+        peekHour: Number(salesData.afternoonSales.peekHour)
+      });
+    }
   }
 
   const handleTurnChange = (event: React.ChangeEvent<HTMLInputElement>) => {

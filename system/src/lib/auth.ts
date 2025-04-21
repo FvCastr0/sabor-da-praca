@@ -33,8 +33,6 @@ export const authOptions: NextAuthOptions = {
             }
           );
 
-          console.log(response);
-
           if (!response.ok) return null;
           const loginData = await response.json();
           const token = loginData.data.token;
