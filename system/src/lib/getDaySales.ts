@@ -7,6 +7,15 @@ interface Response {
         mediumTicket: number;
         peekHour: string;
         totalValue: number;
+        sales: {
+          sales: [
+            {
+              id: string;
+              value: number;
+              date: string;
+            }
+          ];
+        };
       };
       morningSales: {
         salesQuantity: number;

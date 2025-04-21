@@ -5,9 +5,11 @@ import {
   NotFoundException,
   Patch,
   Post,
-  Query
+  Query,
+  UseGuards
 } from "@nestjs/common";
 
+import { AuthGuard } from "../auth/auth.guard";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
@@ -17,6 +19,7 @@ import { SalesService } from "./sales.service";
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
+  @UseGuards(AuthGuard)
   @Get("data")
   async getSales(@Query() date: GetSalesDataDto) {
     const salesData = await this.salesService.getSalesData(date);
@@ -29,6 +32,7 @@ export class SalesController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Patch("/update")
   update(@Body() dto: UpdateSaleValueDto) {
     return this.salesService.updateSalesValue(dto);

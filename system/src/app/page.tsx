@@ -14,6 +14,12 @@ import { toast } from "react-toastify";
 
 export default function Home() {
   const { status } = useSession();
+  const [selectedDate, setSelectedDate] = useState({
+    day: 0,
+    month: 0,
+    year: 0
+  });
+  const [hasData, setHasData] = useState(false);
   const router = useRouter();
   const [daySales, setDaySales] = useState({
     peekHour: 0,
@@ -58,7 +64,16 @@ export default function Home() {
 
     if (!response.ok) {
       toast.error("Erro ao buscar vendas");
-    } else toast.success("Vendas carregadas com sucesso");
+      setHasData(false);
+    } else {
+      toast.success("Vendas carregadas com sucesso");
+      setHasData(true);
+      setSelectedDate({
+        day,
+        month,
+        year
+      });
+    }
 
     const salesData = response.data?.data;
 
@@ -103,22 +118,32 @@ export default function Home() {
           <CardSales className={raleway.className}>
             <div className="card-header">
               <h2>Vendas do dia</h2>
-              <Link href="/table">Ver tabela</Link>
+              {hasData && (
+                <Link
+                  href={`/table?day=${selectedDate.day}&month=${selectedDate.month}&year=${selectedDate.year}`}
+                >
+                  Ver tabela
+                </Link>
+              )}
             </div>
 
             <p>
               Vendas: R${" "}
               <span className={poppins.className}>
-                {daySales.salesQuantity}
+                {daySales.salesQuantity.toFixed(2).replace(".", ",")}
               </span>
             </p>
             <p>
               Ticket médio: R${" "}
-              <span className={poppins.className}>{daySales.mediumTicket}</span>
+              <span className={poppins.className}>
+                {daySales.mediumTicket.toFixed(2).replace(".", ",")}
+              </span>
             </p>
             <p>
               Horário de pico:{" "}
-              <span className={poppins.className}>{daySales.peekHour}</span>
+              <span className={poppins.className}>
+                {daySales.peekHour} Horas
+              </span>
             </p>
             <p>
               Total:{" "}
@@ -160,16 +185,16 @@ export default function Home() {
               Vendas: R${" "}
               <span className={poppins.className}>
                 {turn === "morning"
-                  ? morningTurn.salesQuantity
-                  : afternoonTurn.salesQuantity}
+                  ? morningTurn.salesQuantity.toFixed(2).replace(".", ",")
+                  : afternoonTurn.salesQuantity.toFixed(2).replace(".", ",")}
               </span>
             </p>
             <p>
               Ticket médio: R${" "}
               <span className={poppins.className}>
                 {turn === "morning"
-                  ? morningTurn.mediumTicket
-                  : afternoonTurn.mediumTicket}
+                  ? morningTurn.mediumTicket.toFixed(2).replace(".", ",")
+                  : afternoonTurn.mediumTicket.toFixed(2).replace(".", ",")}
               </span>
             </p>
 
@@ -178,7 +203,8 @@ export default function Home() {
               <span className={poppins.className}>
                 {turn === "morning"
                   ? morningTurn.peekHour
-                  : afternoonTurn.peekHour}
+                  : afternoonTurn.peekHour}{" "}
+                Horas
               </span>
             </p>
 
