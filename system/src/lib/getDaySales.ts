@@ -22,6 +22,7 @@ interface Response {
       };
     };
   };
+
   ok: boolean;
 }
 

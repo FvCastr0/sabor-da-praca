@@ -4,6 +4,7 @@ import {
   OnModuleDestroy
 } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { toZonedTime } from "date-fns-tz";
 import { randomUUID } from "node:crypto";
 import { ResponseData } from "../interfaces/ResponseData";
 import { PrismaService } from "../prisma/prisma.service";
@@ -12,6 +13,8 @@ import { getPeakHour } from "../utils/getPeakHours";
 import { getTotalSalesValue } from "../utils/getTotalValueSales";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
+
+const TIME_ZONE = "America/Sao_Paulo";
 
 @Injectable()
 export class SalesService implements OnModuleDestroy {
@@ -46,9 +49,14 @@ export class SalesService implements OnModuleDestroy {
 
     if (sales === null) return { message: "Data não encontrada.", status: 404 };
 
+    const salesWithSaoPauloTime = sales.sales.map(sale => ({
+      ...sale,
+      date: toZonedTime(sale.date, TIME_ZONE)
+    }));
+
     const morningSales = () => {
       const morning: { date: Date; value: number }[] = [];
-      sales.sales.forEach(sale => {
+      salesWithSaoPauloTime.forEach(sale => {
         if (sale.date.getHours() < 13) {
           morning.push(sale);
         }
@@ -58,7 +66,7 @@ export class SalesService implements OnModuleDestroy {
 
     const afternoonSales = () => {
       const afternoonSales: { date: Date; value: number }[] = [];
-      sales.sales.forEach(sale => {
+      salesWithSaoPauloTime.forEach(sale => {
         if (sale.date.getHours() >= 13) {
           afternoonSales.push(sale);
         }
@@ -72,10 +80,12 @@ export class SalesService implements OnModuleDestroy {
       data: {
         general: {
           sales,
-          salesQuantity: sales.sales.length,
-          totalValue: Number(getTotalSalesValue(sales.sales).toFixed(2)),
-          mediumTicket: getAverageTicket(sales.sales),
-          peekHour: getPeakHour(sales.sales)
+          salesQuantity: salesWithSaoPauloTime.length,
+          totalValue: Number(
+            getTotalSalesValue(salesWithSaoPauloTime).toFixed(2)
+          ),
+          mediumTicket: getAverageTicket(salesWithSaoPauloTime),
+          peekHour: getPeakHour(salesWithSaoPauloTime)
         },
         morningSales: {
           salesQuantity: morningSales().length,
@@ -152,7 +162,7 @@ export class SalesService implements OnModuleDestroy {
   }
 
   @Cron(CronExpression.EVERY_4_HOURS)
-  private async pushSalesEverySixHours() {
+  private async pushSalesEveryFourHours() {
     if (this.salesBuffer.length > 0) await this.processSalesBatch();
   }
 }

@@ -1,9 +1,4 @@
 export function getPeakHour(sales: { date: Date }[]): number {
-  if (!sales || sales.length === 0) {
-    console.log("Nenhuma venda encontrada.");
-    return 0;
-  }
-
   const count: Record<number, number> = {};
   let mostFrequentHour = 0;
   let highestCount = 0;
@@ -17,6 +12,5 @@ export function getPeakHour(sales: { date: Date }[]): number {
       mostFrequentHour = hour;
     }
   });
-
   return mostFrequentHour;
 }
