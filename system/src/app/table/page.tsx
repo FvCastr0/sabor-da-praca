@@ -73,7 +73,7 @@ export default function Table() {
   }
 
   return (
-    <Suspense fallback={<div>Carregando vendas...</div>}>
+    <Suspense fallback={<div>Carregando...</div>}>
       <SalesTableStyles>
         <div className="header">
           <h1 className={poppins.className}>
