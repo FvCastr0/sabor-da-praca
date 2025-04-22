@@ -13,6 +13,7 @@ import { getPeakHour } from "../utils/getPeakHours";
 import { getTotalSalesValue } from "../utils/getTotalValueSales";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
+import { GetSalesMonthDataDto } from "./dto/GetSalesMonthDataDto";
 import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
 
 const TIME_ZONE = "America/Sao_Paulo";
@@ -101,6 +102,49 @@ export class SalesService implements OnModuleDestroy {
           mediumTicket: getAverageTicket(afternoonSales()),
           peekHour: getPeakHour(afternoonSales())
         }
+      }
+    };
+  }
+
+  async getSalesMonthData(dto: GetSalesMonthDataDto): Promise<ResponseData> {
+    const sales = await this.prisma.salesDate.findMany({
+      where: {
+        month: Number(dto.month),
+        year: Number(dto.year)
+      },
+      select: {
+        sales: {
+          select: {
+            value: true,
+            date: true
+          }
+        }
+      }
+    });
+
+    if (sales.length === 0)
+      return { message: "Data não encontrada.", status: 404 };
+
+    const salesWithSaoPauloTime = sales.flatMap(sale =>
+      sale.sales.map(s => ({
+        ...s,
+        date: toZonedTime(s.date, TIME_ZONE)
+      }))
+    );
+
+    let salesMonthValue = 0;
+    salesWithSaoPauloTime.forEach(sale => {
+      salesMonthValue += sale.value;
+    });
+
+    return {
+      message: "Vendas carregadas com sucesso",
+      status: 200,
+      data: {
+        salesQuantity: salesWithSaoPauloTime.length,
+        totalValue: Number(salesMonthValue.toFixed(2)),
+        mediumTicket: getAverageTicket(salesWithSaoPauloTime),
+        peekHour: getPeakHour(salesWithSaoPauloTime)
       }
     };
   }

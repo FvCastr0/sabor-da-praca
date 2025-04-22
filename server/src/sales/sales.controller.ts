@@ -12,6 +12,7 @@ import {
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
+import { GetSalesMonthDataDto } from "./dto/GetSalesMonthDataDto";
 import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
 import { SalesService } from "./sales.service";
 
@@ -23,6 +24,22 @@ export class SalesController {
   @Get("data")
   async getSales(@Query() date: GetSalesDataDto) {
     const salesData = await this.salesService.getSalesData(date);
+
+    if (salesData.status !== 200)
+      throw new NotFoundException(salesData.message);
+    return {
+      message: "Informações carregadas",
+      data: salesData.data
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("dataMonth")
+  async GetSalesMonthData(@Query() { year, month }: GetSalesMonthDataDto) {
+    const salesData = await this.salesService.getSalesMonthData({
+      year,
+      month
+    });
 
     if (salesData.status !== 200)
       throw new NotFoundException(salesData.message);
