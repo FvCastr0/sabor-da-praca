@@ -1,6 +1,5 @@
 "use client";
 
-import { Header } from "@/components/Header";
 import { CardSales } from "@/components/ui/CardSales";
 import { InputTurn } from "@/components/ui/InputTurn";
 import { Sales } from "@/components/ui/Sales";
@@ -10,7 +9,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-export default function DayClient() {
+export default function DaySalesClient() {
   const [selectedDate, setSelectedDate] = useState({
     day: 0,
     month: 0,
@@ -91,7 +90,6 @@ export default function DayClient() {
 
   return (
     <div>
-      <Header />
       <Sales>
         <div className={"sales-header"}>
           <h1 className={raleway.className}>Dia</h1>
@@ -118,7 +116,7 @@ export default function DayClient() {
             <p>
               Vendas: R${" "}
               <span className={poppins.className}>
-                {daySales.salesQuantity.toFixed(2).replace(".", ",")}
+                {daySales.totalValue.toFixed(2).replace(".", ",")}
               </span>
             </p>
             <p>
@@ -135,7 +133,9 @@ export default function DayClient() {
             </p>
             <p>
               Total:{" "}
-              <span className={poppins.className}>{daySales.totalValue}</span>
+              <span className={poppins.className}>
+                {daySales.salesQuantity}
+              </span>
             </p>
           </CardSales>
 
@@ -173,8 +173,8 @@ export default function DayClient() {
               Vendas: R${" "}
               <span className={poppins.className}>
                 {turn === "morning"
-                  ? morningTurn.salesQuantity.toFixed(2).replace(".", ",")
-                  : afternoonTurn.salesQuantity.toFixed(2).replace(".", ",")}
+                  ? morningTurn.totalValue.toFixed(2).replace(".", ",")
+                  : afternoonTurn.totalValue.toFixed(2).replace(".", ",")}
               </span>
             </p>
             <p>
@@ -200,8 +200,8 @@ export default function DayClient() {
               Total:{" "}
               <span className={poppins.className}>
                 {turn === "morning"
-                  ? morningTurn.totalValue
-                  : afternoonTurn.totalValue}
+                  ? morningTurn.salesQuantity
+                  : afternoonTurn.salesQuantity}
               </span>
             </p>
           </CardSales>

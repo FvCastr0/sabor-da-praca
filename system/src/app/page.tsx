@@ -1,6 +1,8 @@
 "use client";
 
-import DayClient from "@/components/DayClient";
+import DaySalesClient from "@/components/DaySalesClient";
+import { Header } from "@/components/Header";
+import MonthSalesClient from "@/components/MonthSalesClient";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
@@ -21,7 +23,9 @@ export default function Home() {
 
   return (
     <Suspense fallback={<div>Carregando</div>}>
-      <DayClient />
+      <Header />
+      <DaySalesClient />
+      <MonthSalesClient />
     </Suspense>
   );
 }

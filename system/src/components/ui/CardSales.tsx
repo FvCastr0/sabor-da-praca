@@ -1,15 +1,20 @@
 import styled from "styled-components";
 import { colors } from "./theme";
 
-export const CardSales = styled.article`
+interface prop {
+  type?: string;
+}
+
+export const CardSales = styled.article<prop>`
   background-color: #f6f6f6;
   display: flex;
   flex-direction: column;
+  justify-content: right;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 40dvw;
+  max-width: ${props => (props.type === "month" ? "100dvw" : "40dvw")};
   line-height: 1.3;
 
   @media (max-width: 880px) {

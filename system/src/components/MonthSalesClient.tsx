@@ -1,0 +1,92 @@
+"use client";
+
+import { CardSales } from "@/components/ui/CardSales";
+import { Sales } from "@/components/ui/Sales";
+import { poppins, raleway } from "@/components/ui/theme";
+import { getMonthSales } from "@/lib/getMonthSales";
+import { useState } from "react";
+import { toast } from "react-toastify";
+
+export default function MonthSalesClient() {
+  const [monthSales, setMonthSales] = useState({
+    salesQuantity: 0,
+    mediumTicket: 0,
+    totalValue: 0
+  });
+
+  async function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selectedDate = event.target.value;
+    const selectedMonth = parseInt(selectedDate.split("-")[1]);
+    const selectedYear = parseInt(selectedDate.split("-")[0]);
+
+    if (selectedMonth !== undefined && selectedYear !== undefined) {
+      const response = await getMonthSales(
+        selectedMonth as number,
+        selectedYear as number
+      );
+      const salesData = response.data;
+
+      if (!response.ok) {
+        toast.error("Erro ao buscar vendas");
+      } else {
+        toast.success("Vendas carregadas com sucesso");
+      }
+
+      if (salesData) {
+        setMonthSales(salesData);
+      } else {
+        toast.error("Dados de vendas não encontrados");
+      }
+    } else {
+      toast.error("Selecione um mês e ano válidos");
+    }
+  }
+
+  return (
+    <Sales
+      style={{
+        marginTop: "1.5rem"
+      }}
+    >
+      <div
+        className={"sales-header"}
+        style={{
+          flexWrap: "wrap"
+        }}
+      >
+        <h1 className={raleway.className}>Mês</h1>
+        <input
+          type="month"
+          className={poppins.className}
+          placeholder="mm/aaaa"
+          onChange={handleDateChange}
+        />
+      </div>
+
+      <section>
+        <CardSales className={raleway.className} type="month">
+          <div className="card-header">
+            <h2>Vendas do mês</h2>
+          </div>
+
+          <p>
+            Vendas: R${" "}
+            <span className={poppins.className}>
+              {monthSales.salesQuantity.toFixed(2).replace(".", ",")}
+            </span>
+          </p>
+          <p>
+            Ticket médio: R${" "}
+            <span className={poppins.className}>
+              {monthSales.mediumTicket.toFixed(2).replace(".", ",")}
+            </span>
+          </p>
+          <p>
+            Total:{" "}
+            <span className={poppins.className}>{monthSales.totalValue}</span>
+          </p>
+        </CardSales>
+      </section>
+    </Sales>
+  );
+}

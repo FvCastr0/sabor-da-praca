@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { colors } from "./theme";
 
 export const Sales = styled.section`
   display: flex;
@@ -21,6 +22,14 @@ export const Sales = styled.section`
     h1 {
       font-size: 1.4rem;
     }
+  }
+
+  .sales-header input {
+    outline: none;
+  }
+
+  .sales-header input::placeholder {
+    color: ${colors.black};
   }
 
   section {
