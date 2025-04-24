@@ -143,8 +143,7 @@ export class SalesService implements OnModuleDestroy {
       data: {
         salesQuantity: salesWithSaoPauloTime.length,
         totalValue: Number(salesMonthValue.toFixed(2)),
-        mediumTicket: getAverageTicket(salesWithSaoPauloTime),
-        peekHour: getPeakHour(salesWithSaoPauloTime)
+        mediumTicket: getAverageTicket(salesWithSaoPauloTime)
       }
     };
   }
