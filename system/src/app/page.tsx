@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     async function verifyToken() {
       if (session?.accessToken !== undefined) {
-        if (await verifySession(session?.accessToken)) {
+        if ((await verifySession(session?.accessToken)) === "unauthorized") {
           signOut();
         }
       }

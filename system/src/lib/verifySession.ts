@@ -1,15 +1,14 @@
 export const verifySession = async (token: string) => {
   try {
-    const response = await fetch(`${process.env.BACKEND_URL}/sale/update`, {
-      method: "PATCH",
+    const response = await fetch(`${process.env.BACKEND_URL}/auth/profile`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       }
     });
 
-    if (response.status !== 200) return false;
-    else return true;
+    if (response.status === 401) return "unauthorized";
   } catch (e) {
     return e;
   }
