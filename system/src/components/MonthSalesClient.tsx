@@ -9,9 +9,11 @@ import { toast } from "react-toastify";
 
 export default function MonthSalesClient() {
   const [monthSales, setMonthSales] = useState({
-    salesQuantity: 0,
-    mediumTicket: 0,
-    totalValue: 0
+    data: {
+      salesQuantity: 0,
+      mediumTicket: 0,
+      totalValue: 0
+    }
   });
 
   async function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -33,7 +35,13 @@ export default function MonthSalesClient() {
       }
 
       if (salesData) {
-        setMonthSales(salesData);
+        setMonthSales({
+          data: {
+            salesQuantity: salesData.salesQuantity,
+            mediumTicket: salesData.mediumTicket,
+            totalValue: salesData.totalValue
+          }
+        });
       } else {
         toast.error("Dados de vendas não encontrados");
       }
@@ -72,18 +80,20 @@ export default function MonthSalesClient() {
           <p>
             Vendas: R${" "}
             <span className={poppins.className}>
-              {monthSales.salesQuantity.toFixed(2).replace(".", ",")}
+              {monthSales.data.salesQuantity.toFixed(2).replace(".", ",")}
             </span>
           </p>
           <p>
             Ticket médio: R${" "}
             <span className={poppins.className}>
-              {monthSales.mediumTicket.toFixed(2).replace(".", ",")}
+              {monthSales.data.mediumTicket.toFixed(2).replace(".", ",")}
             </span>
           </p>
           <p>
             Total:{" "}
-            <span className={poppins.className}>{monthSales.totalValue}</span>
+            <span className={poppins.className}>
+              {monthSales.data.totalValue}
+            </span>
           </p>
         </CardSales>
       </section>

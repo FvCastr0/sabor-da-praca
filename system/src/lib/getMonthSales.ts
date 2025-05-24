@@ -20,7 +20,7 @@ export const getMonthSales = async (
   const token = session?.accessToken;
 
   const response = await fetch(
-    `${process.env.BACKEND_URL}/sale/month?&month=${month}&year=${year}`,
+    `${process.env.BACKEND_URL}/sale/datamonth?month=${month}&year=${year}`,
     {
       headers: {
         Authorization: `Bearer ${token}`
@@ -33,10 +33,12 @@ export const getMonthSales = async (
       message: "Erro ao buscar vendas",
       ok: false
     };
-  } else
+  } else {
+    const data = await response.json().then(req => req.data);
     return {
       message: "Vendas carregadas com sucesso",
-      data: await response.json(),
+      data,
       ok: true
     };
+  }
 };
