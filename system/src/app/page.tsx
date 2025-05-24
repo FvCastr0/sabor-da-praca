@@ -13,16 +13,22 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (session?.accessToken !== undefined) {
-      if (!verifySession(session?.accessToken)) {
-        signOut();
+    async function verifyToken() {
+      if (session?.accessToken !== undefined) {
+        if (await verifySession(session?.accessToken)) {
+          signOut();
+        }
       }
     }
 
+    verifyToken();
+  });
+
+  useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, session, router]);
+  }, [session, status, router]);
 
   if (status === "loading") {
     return null;
