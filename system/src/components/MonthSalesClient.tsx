@@ -26,6 +26,11 @@ export default function MonthSalesClient() {
         selectedMonth as number,
         selectedYear as number
       );
+
+      if (response.message === "INVALID-USER") {
+        signOut();
+      }
+
       const salesData = response.data;
 
       if (!response.ok) {

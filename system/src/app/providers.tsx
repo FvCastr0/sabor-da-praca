@@ -7,6 +7,6 @@ interface Props {
   children: ReactNode;
 }
 
-export const NextAuthProvider = async ({ children }: Props) => {
+export const NextAuthProvider = ({ children }: Props) => {
   return <SessionProvider>{children}</SessionProvider>;
 };

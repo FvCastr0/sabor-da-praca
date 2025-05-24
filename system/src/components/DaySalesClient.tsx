@@ -5,6 +5,7 @@ import { InputTurn } from "@/components/ui/InputTurn";
 import { Sales } from "@/components/ui/Sales";
 import { poppins, raleway } from "@/components/ui/theme";
 import { getDaySales } from "@/lib/getDaySales";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -48,6 +49,10 @@ export default function DaySalesClient() {
     const year = date.getFullYear();
 
     const response = await getDaySales(day, month, year);
+
+    if (response.message === "INVALID-USER") {
+      signOut();
+    }
 
     if (!response.ok) {
       toast.error("Erro ao buscar vendas");
