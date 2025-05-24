@@ -28,13 +28,6 @@ export const getMonthSales = async (
     }
   );
 
-  if (response.status === 401) {
-    return {
-      message: "INVALID-USER",
-      ok: false
-    };
-  }
-
   if (!response.ok) {
     return {
       message: "Erro ao buscar vendas",
