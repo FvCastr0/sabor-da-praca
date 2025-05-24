@@ -3,19 +3,26 @@
 import DaySalesClient from "@/components/DaySalesClient";
 import { Header } from "@/components/Header";
 import MonthSalesClient from "@/components/MonthSalesClient";
-import { useSession } from "next-auth/react";
+import { verifySession } from "@/lib/verifySession";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
 export default function Home() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const router = useRouter();
 
   useEffect(() => {
+    if (session?.accessToken !== undefined) {
+      if (!verifySession(session?.accessToken)) {
+        signOut();
+      }
+    }
+
     if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   if (status === "loading") {
     return null;
