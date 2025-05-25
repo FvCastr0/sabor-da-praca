@@ -10,6 +10,7 @@ import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 import { GetSalesMonthDataDto } from "./dto/GetSalesMonthDataDto";
 import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
+import { getSalesBetweenDatesDto } from "./dto/getSalesWeek";
 
 const TIME_ZONE = "America/Sao_Paulo";
 
@@ -89,6 +90,52 @@ export class SalesService {
           mediumTicket: getAverageTicket(afternoonSales()),
           peekHour: getPeakHour(afternoonSales())
         }
+      }
+    };
+  }
+
+  async getSalesBetweenDates(
+    dto: getSalesBetweenDatesDto
+  ): Promise<ResponseData> {
+    const startDate = new Date(dto.startYear, dto.startMonth - 1, dto.startDay);
+    const endDate = new Date(dto.endYear, dto.endMonth - 1, dto.endDay + 1);
+
+    const sales = await this.prisma.sale.findMany({
+      where: {
+        date: {
+          gte: startDate,
+          lt: endDate
+        }
+      },
+      select: {
+        id: true,
+        value: true,
+        date: true
+      }
+    });
+
+    if (!sales.length) {
+      return {
+        message: "Nenhuma venda encontrada nesse intervalo.",
+        status: 404
+      };
+    }
+
+    const salesWithSaoPauloTime = sales.map(sale => ({
+      ...sale,
+      date: toZonedTime(sale.date, TIME_ZONE)
+    }));
+
+    return {
+      message: "Vendas carregadas com sucesso",
+      status: 200,
+      data: {
+        salesQuantity: salesWithSaoPauloTime.length,
+        totalValue: Number(
+          getTotalSalesValue(salesWithSaoPauloTime).toFixed(2)
+        ),
+        mediumTicket: getAverageTicket(salesWithSaoPauloTime),
+        peekHour: getPeakHour(salesWithSaoPauloTime)
       }
     };
   }

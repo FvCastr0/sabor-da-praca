@@ -67,7 +67,7 @@ export default function MonthSalesClient() {
           <p>
             Vendas: R${" "}
             <span className={poppins.className}>
-              {monthSales.data.salesQuantity.toFixed(2).replace(".", ",")}
+              {monthSales.data.totalValue.toFixed(2).replace(".", ",")}
             </span>
           </p>
           <p>
@@ -79,7 +79,7 @@ export default function MonthSalesClient() {
           <p>
             Total:{" "}
             <span className={poppins.className}>
-              {monthSales.data.totalValue}
+              {monthSales.data.salesQuantity}
             </span>
           </p>
         </CardSales>

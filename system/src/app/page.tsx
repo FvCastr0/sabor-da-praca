@@ -3,6 +3,7 @@
 import DaySalesClient from "@/components/DaySalesClient";
 import { Header } from "@/components/Header";
 import MonthSalesClient from "@/components/MonthSalesClient";
+import SalesBetweenDates from "@/components/SalesBetweenDatesClient";
 import { verifySession } from "@/lib/verifySession";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -38,7 +39,22 @@ export default function Home() {
     <Suspense fallback={<div>Carregando</div>}>
       <Header />
       <DaySalesClient />
-      <MonthSalesClient />
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          width: "100dvw",
+          justifyContent: "left"
+        }}
+      >
+        <div style={{ flex: "1 1 600px", maxWidth: "100%", margin: "1rem 0" }}>
+          <MonthSalesClient />
+        </div>
+
+        <div style={{ flex: "1 1 360px", maxWidth: "100%" }}>
+          <SalesBetweenDates />
+        </div>
+      </div>
     </Suspense>
   );
 }

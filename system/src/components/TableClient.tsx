@@ -84,16 +84,16 @@ export default function TableClient() {
       <table>
         <thead className={raleway.className}>
           <tr>
-            <th>Valor</th>
             <th>Horário</th>
+            <th>Valor</th>
             <td>Editar</td>
           </tr>
         </thead>
         <tbody className={poppins.className}>
           {sales.map(sale => (
             <tr key={sale.id}>
-              <td>{sale.value}</td>
               <td>{convertSaleDateToTime(sale.date)}</td>
+              <td>{sale.value}</td>
               <td>
                 <Image
                   src={"/edit.svg"}

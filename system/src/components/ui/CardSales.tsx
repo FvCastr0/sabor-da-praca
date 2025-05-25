@@ -31,6 +31,7 @@ export const CardSales = styled.article<prop>`
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
+    margin-bottom: 0.5rem;
   }
 
   h2 {

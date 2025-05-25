@@ -6,13 +6,15 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards
+  UseGuards,
+  ValidationPipe
 } from "@nestjs/common";
 
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateSaleDto } from "./dto/CreateSaleDto";
 import { GetSalesDataDto } from "./dto/GetSalesDataDto";
 import { GetSalesMonthDataDto } from "./dto/GetSalesMonthDataDto";
+import { getSalesBetweenDatesDto } from "./dto/getSalesWeek";
 import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
 import { SalesService } from "./sales.service";
 
@@ -33,6 +35,20 @@ export class SalesController {
     };
   }
 
+  @Get("data/betweenDates")
+  async getSalesBetweenDates(
+    @Query(ValidationPipe) date: getSalesBetweenDatesDto
+  ) {
+    const salesData = await this.salesService.getSalesBetweenDates(date);
+
+    if (salesData.status !== 200)
+      throw new NotFoundException(salesData.message);
+
+    return {
+      message: "Informações carregadas",
+      data: salesData.data
+    };
+  }
   @UseGuards(AuthGuard)
   @Get("dataMonth")
   async GetSalesMonthData(@Query() { year, month }: GetSalesMonthDataDto) {
