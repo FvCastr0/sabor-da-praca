@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  OnModuleDestroy
-} from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Injectable } from "@nestjs/common";
 import { toZonedTime } from "date-fns-tz";
 import { randomUUID } from "node:crypto";
 import { ResponseData } from "../interfaces/ResponseData";
@@ -19,16 +14,8 @@ import { UpdateSaleValueDto } from "./dto/UpdateSaleValue";
 const TIME_ZONE = "America/Sao_Paulo";
 
 @Injectable()
-export class SalesService implements OnModuleDestroy {
-  private salesBuffer: CreateSaleDto[] = [];
-  private readonly batchSize = 20;
-  private processingBatch = false;
-
+export class SalesService {
   constructor(private prisma: PrismaService) {}
-
-  async onModuleDestroy() {
-    await this.processSalesBatch();
-  }
 
   async getSalesData(dto: GetSalesDataDto): Promise<ResponseData> {
     const sales = await this.prisma.salesDate.findUnique({
@@ -178,65 +165,34 @@ export class SalesService implements OnModuleDestroy {
   }
 
   async create(dto: CreateSaleDto) {
-    this.salesBuffer.push(dto);
-    if (this.salesBuffer.length >= this.batchSize && !this.processingBatch) {
-      await this.processSalesBatch();
-    }
-  }
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
 
-  private async processSalesBatch() {
-    if (this.salesBuffer.length === 0 || this.processingBatch) {
-      return;
-    }
-
-    this.processingBatch = true;
-    const batchToProcess = [...this.salesBuffer];
-    this.salesBuffer = [];
-
-    try {
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
-
-      const salesDateRecord = await this.prisma.salesDate.upsert({
-        where: {
-          day_month_year: {
-            day: currentDay,
-            month: currentMonth,
-            year: currentYear
-          }
-        },
-        update: {},
-        create: {
-          id: randomUUID(),
+    const salesDateRecord = await this.prisma.salesDate.upsert({
+      where: {
+        day_month_year: {
           day: currentDay,
           month: currentMonth,
           year: currentYear
         }
-      });
+      },
+      update: {},
+      create: {
+        id: randomUUID(),
+        day: currentDay,
+        month: currentMonth,
+        year: currentYear
+      }
+    });
 
-      const salesDataToCreate = batchToProcess.map(dto => ({
+    await this.prisma.sale.create({
+      data: {
         value: dto.value,
         date: new Date(dto.date).toISOString(),
         salesDateId: salesDateRecord.id
-      }));
-
-      await this.prisma.sale.createMany({
-        data: salesDataToCreate
-      });
-    } catch (e) {
-      throw new InternalServerErrorException("Error processing sales batch", e);
-    } finally {
-      this.processingBatch = false;
-      if (this.salesBuffer.length >= this.batchSize) {
-        await this.processSalesBatch();
       }
-    }
-  }
-
-  @Cron(CronExpression.EVERY_4_HOURS)
-  private async pushSalesEveryFourHours() {
-    if (this.salesBuffer.length > 0) await this.processSalesBatch();
+    });
   }
 }
