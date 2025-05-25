@@ -51,30 +51,17 @@ export default function MonthSalesClient() {
   }
 
   return (
-    <Sales
-      style={{
-        marginTop: "1.5rem"
-      }}
-    >
-      <div
-        className={"sales-header"}
-        style={{
-          flexWrap: "wrap"
-        }}
-      >
-        <h1 className={raleway.className}>Mês</h1>
-        <input
-          type="month"
-          className={poppins.className}
-          placeholder="mm/aaaa"
-          onChange={handleDateChange}
-        />
-      </div>
-
+    <Sales>
       <section>
         <CardSales className={raleway.className} type="month">
           <div className="card-header">
             <h2>Vendas do mês</h2>
+            <input
+              type="month"
+              className={poppins.className}
+              placeholder="mm/aaaa"
+              onChange={handleDateChange}
+            />
           </div>
 
           <p>

@@ -1,13 +1,14 @@
 "use client";
 
 import { CardSales } from "@/components/ui/CardSales";
-import { InputTurn } from "@/components/ui/InputTurn";
 import { Sales } from "@/components/ui/Sales";
 import { poppins, raleway } from "@/components/ui/theme";
 import { getDaySales } from "@/lib/getDaySales";
+import { Sale } from "@/types/Sale";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import { DaySalesChartWrapper } from "./ChartWrapper";
 
 export default function DaySalesClient() {
   const [selectedDate, setSelectedDate] = useState({
@@ -15,30 +16,65 @@ export default function DaySalesClient() {
     month: 0,
     year: 0
   });
-
   const [hasData, setHasData] = useState(false);
+  const [turn, setTurn] = useState<string>("geral");
 
   const [daySales, setDaySales] = useState({
-    peekHour: 0,
-    salesQuantity: 0,
-    mediumTicket: 0,
-    totalValue: 0
+    geral: {
+      sales: [] as Sale[],
+      peekHour: 0,
+      salesQuantity: 0,
+      mediumTicket: 0,
+      totalValue: 0
+    },
+    morning: {
+      peekHour: 0,
+      salesQuantity: 0,
+      mediumTicket: 0,
+      totalValue: 0
+    },
+    afternoon: {
+      peekHour: 0,
+      salesQuantity: 0,
+      mediumTicket: 0,
+      totalValue: 0
+    }
   });
-  const [turn, setTurn] = useState("morning");
 
-  const [morningTurn, setMorningTurn] = useState({
-    peekHour: 0,
-    salesQuantity: 0,
-    mediumTicket: 0,
-    totalValue: 0
-  });
+  const formatCurrency = (value: number) => value.toFixed(2).replace(".", ",");
 
-  const [afternoonTurn, setAfternoonTurn] = useState({
-    peekHour: 0,
-    salesQuantity: 0,
-    mediumTicket: 0,
-    totalValue: 0
-  });
+  const switchTurns = useMemo(() => {
+    switch (turn) {
+      case "morning":
+        return {
+          peekHour: daySales.morning.peekHour,
+          salesQuantity: daySales.morning.salesQuantity,
+          mediumTicket: daySales.morning.mediumTicket,
+          totalValue: daySales.morning.totalValue
+        };
+      case "afternoon":
+        return {
+          peekHour: daySales.afternoon.peekHour,
+          salesQuantity: daySales.afternoon.salesQuantity,
+          mediumTicket: daySales.afternoon.mediumTicket,
+          totalValue: daySales.afternoon.totalValue
+        };
+      case "geral":
+        return {
+          peekHour: daySales.geral.peekHour,
+          salesQuantity: daySales.geral.salesQuantity,
+          mediumTicket: daySales.geral.mediumTicket,
+          totalValue: daySales.geral.totalValue
+        };
+      default:
+        return {
+          peekHour: 0,
+          salesQuantity: 0,
+          mediumTicket: 0,
+          totalValue: 0
+        };
+    }
+  }, [turn, daySales]);
 
   async function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedDate = event.target.value;
@@ -66,144 +102,99 @@ export default function DaySalesClient() {
 
     if (salesData?.general) {
       setDaySales({
-        ...salesData.general,
-        peekHour: Number(salesData.general.peekHour)
-      });
-    }
-    if (salesData?.morningSales) {
-      setMorningTurn({
-        ...salesData.morningSales,
-        peekHour: Number(salesData.morningSales.peekHour)
-      });
-    }
-    if (salesData?.afternoonSales) {
-      setAfternoonTurn({
-        ...salesData.afternoonSales,
-        peekHour: Number(salesData.afternoonSales.peekHour)
+        geral: {
+          ...salesData.general,
+          sales: salesData.general.sales.sales,
+          peekHour: Number(salesData.general.peekHour)
+        },
+
+        morning: {
+          ...salesData.morningSales,
+          peekHour: Number(salesData.morningSales.peekHour)
+        },
+
+        afternoon: {
+          ...salesData.afternoonSales,
+          peekHour: Number(salesData.afternoonSales.peekHour)
+        }
       });
     }
   }
 
-  const handleTurnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTurnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setTurn(event.target.value);
   };
 
   return (
     <div>
       <Sales>
-        <div className={"sales-header"}>
-          <h1 className={raleway.className}>Dia</h1>
-          <input
-            type="date"
-            className={poppins.className}
-            onChange={handleDateChange}
-          />
-        </div>
-
         <section>
-          <CardSales className={raleway.className}>
-            <div className="card-header">
-              <h2>Vendas do dia</h2>
-              {hasData && (
-                <Link
-                  href={`/table?day=${selectedDate.day}&month=${selectedDate.month}&year=${selectedDate.year}`}
-                >
-                  Ver tabela
-                </Link>
-              )}
-            </div>
-
-            <p>
-              Vendas: R${" "}
-              <span className={poppins.className}>
-                {daySales.totalValue.toFixed(2).replace(".", ",")}
-              </span>
-            </p>
-            <p>
-              Ticket médio: R${" "}
-              <span className={poppins.className}>
-                {daySales.mediumTicket.toFixed(2).replace(".", ",")}
-              </span>
-            </p>
-            <p>
-              Horário de pico:{" "}
-              <span className={poppins.className}>
-                {daySales.peekHour} Horas
-              </span>
-            </p>
-            <p>
-              Total:{" "}
-              <span className={poppins.className}>
-                {daySales.salesQuantity}
-              </span>
-            </p>
-          </CardSales>
-
-          <CardSales className={raleway.className}>
-            <div className="card-header">
-              <h2>Vendas dos turnos</h2>
-
-              <InputTurn>
+          <CardSales
+            className={raleway.className}
+            type={hasData ? "bigger" : ""}
+          >
+            <div>
+              <div className="card-header">
                 <div>
-                  <input
-                    type="radio"
-                    id="turn1"
-                    name="turns"
-                    value="morning"
-                    checked={turn === "morning"}
-                    onChange={handleTurnChange}
-                  />
-                  <label htmlFor="turn1">Manhã</label>
+                  <h2>Vendas do dia</h2>
+                  {hasData && (
+                    <Link
+                      href={`/table?day=${selectedDate.day}&month=${selectedDate.month}&year=${selectedDate.year}`}
+                    >
+                      Ver tabela
+                    </Link>
+                  )}
                 </div>
 
-                <div>
+                <article>
                   <input
-                    type="radio"
-                    id="turn2"
-                    name="turns"
-                    value="afternoon"
-                    checked={turn === "afternoon"}
-                    onChange={handleTurnChange}
+                    type="date"
+                    className={poppins.className}
+                    onChange={handleDateChange}
                   />
-                  <label htmlFor="turn2">Tarde</label>
-                </div>
-              </InputTurn>
+
+                  {hasData && (
+                    <select
+                      name="turno"
+                      value={turn}
+                      onChange={handleTurnChange}
+                      className={poppins.className}
+                    >
+                      <option value="">Selecionar turno</option>
+                      <option value="geral">Geral</option>
+                      <option value="morning">Manhã</option>
+                      <option value="afternoon">Tarde</option>
+                    </select>
+                  )}
+                </article>
+              </div>
+
+              <p>
+                Vendas: R${" "}
+                <span className={poppins.className}>
+                  {formatCurrency(switchTurns.totalValue)}
+                </span>
+              </p>
+              <p>
+                Ticket médio: R${" "}
+                <span className={poppins.className}>
+                  {formatCurrency(switchTurns.mediumTicket)}
+                </span>
+              </p>
+              <p>
+                Horário de pico:{" "}
+                <span className={poppins.className}>
+                  {switchTurns.peekHour} Horas
+                </span>
+              </p>
+              <p>
+                Total:{" "}
+                <span className={poppins.className}>
+                  {switchTurns.salesQuantity}
+                </span>
+              </p>
             </div>
-            <p>
-              Vendas: R${" "}
-              <span className={poppins.className}>
-                {turn === "morning"
-                  ? morningTurn.totalValue.toFixed(2).replace(".", ",")
-                  : afternoonTurn.totalValue.toFixed(2).replace(".", ",")}
-              </span>
-            </p>
-            <p>
-              Ticket médio: R${" "}
-              <span className={poppins.className}>
-                {turn === "morning"
-                  ? morningTurn.mediumTicket.toFixed(2).replace(".", ",")
-                  : afternoonTurn.mediumTicket.toFixed(2).replace(".", ",")}
-              </span>
-            </p>
-
-            <p>
-              Horário de pico:{" "}
-              <span className={poppins.className}>
-                {turn === "morning"
-                  ? morningTurn.peekHour
-                  : afternoonTurn.peekHour}{" "}
-                Horas
-              </span>
-            </p>
-
-            <p>
-              Total:{" "}
-              <span className={poppins.className}>
-                {turn === "morning"
-                  ? morningTurn.salesQuantity
-                  : afternoonTurn.salesQuantity}
-              </span>
-            </p>
+            <DaySalesChartWrapper data={daySales.geral.sales} />
           </CardSales>
         </section>
       </Sales>

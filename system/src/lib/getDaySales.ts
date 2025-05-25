@@ -54,6 +54,8 @@ export const getDaySales = async (
     }
   );
 
+  const res = await response.json();
+
   if (!response.ok) {
     return {
       message: "Erro ao buscar vendas",
@@ -62,7 +64,7 @@ export const getDaySales = async (
   } else
     return {
       message: "Vendas carregadas com sucesso",
-      data: await response.json(),
+      data: res,
       ok: true
     };
 };
