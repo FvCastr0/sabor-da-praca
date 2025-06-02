@@ -2,10 +2,9 @@ import styled from "styled-components";
 import { colors } from "./theme";
 
 export const FormCard = styled.form`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -100%);
+  width: 50%;
+  margin: 0 auto;
+  margin-top: 5rem;
   background-color: #fafafa;
   box-shadow: 4px 1px 12px 2px ${colors.terciary};
   padding: 3rem 3rem 4rem 3rem;

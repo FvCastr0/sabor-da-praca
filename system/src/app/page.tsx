@@ -39,22 +39,10 @@ export default function Home() {
     <Suspense fallback={<div>Carregando</div>}>
       <Header />
       <DaySalesClient />
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          width: "100dvw",
-          justifyContent: "left"
-        }}
-      >
-        <div style={{ flex: "1 1 600px", maxWidth: "100%", margin: "1rem 0" }}>
-          <MonthSalesClient />
-        </div>
 
-        <div style={{ flex: "1 1 360px", maxWidth: "100%" }}>
-          <SalesBetweenDates />
-        </div>
-      </div>
+      <MonthSalesClient />
+
+      <SalesBetweenDates />
     </Suspense>
   );
 }
